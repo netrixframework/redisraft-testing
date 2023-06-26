@@ -26,8 +26,8 @@ func FuzzerCommand() *cobra.Command {
 		},
 	}
 	cmd.PersistentFlags().IntVarP(&iterations, "iterations", "i", 10, "Number of fuzzer iteration loops to run")
-	cmd.PersistentFlags().StringVarP(&netrixAddr, "netrix-addr", "na", "localhost:7074", "Address to run the netrix server")
-	cmd.PersistentFlags().StringVarP(&tlcAddr, "tlc-addr", "ta", "localhost:2023", "Address to TLC Server to measure coverage")
+	cmd.PersistentFlags().StringVarP(&netrixAddr, "netrix-addr", "n", "localhost:7074", "Address to run the netrix server")
+	cmd.PersistentFlags().StringVarP(&tlcAddr, "tlc-addr", "t", "localhost:2023", "Address to TLC Server to measure coverage")
 
 	return cmd
 }
