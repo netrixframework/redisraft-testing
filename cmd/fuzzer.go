@@ -33,9 +33,12 @@ func FuzzerCommand() *cobra.Command {
 }
 
 func RunFuzzer(iterations int, netrixServerAddr, tlcAddr string) error {
+	termCh := make(chan os.Signal, 1)
+	signal.Notify(termCh, os.Interrupt, syscall.SIGTERM)
+
 	fuzzingStrategy := fuzzing.NewFuzzStrategy(&fuzzing.FuzzStrategyConfig{
 		Mutator:           fuzzing.NewDefaultMutator(),
-		Guider:            fuzzing.NewTLCGuider(tlcAddr),
+		Guider:            fuzzing.NewTLCGuider(tlcAddr, util.TLCEventMapper()),
 		Seed:              rand.NewSource(time.Now().UnixNano()),
 		InitialPopulation: 4,
 		MutationsPerTrace: 4,
@@ -59,13 +62,14 @@ func RunFuzzer(iterations int, netrixServerAddr, tlcAddr string) error {
 		},
 	)
 
-	termCh := make(chan os.Signal, 1)
-	signal.Notify(termCh, os.Interrupt, syscall.SIGTERM)
-
-	defer func() {
+	go func() {
 		<-termCh
 		driver.Stop()
 	}()
 
-	return driver.Start()
+	err := driver.Start()
+	if err != strategies.ErrDriverQuit {
+		return err
+	}
+	return nil
 }
